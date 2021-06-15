@@ -1,0 +1,75 @@
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    height: 100%;
+    font-family: Menlo, Consolas, Monaco, Liberation Mono, Lucida Console, monospace;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background-color: #363636;
+}
+
+textarea {
+    width: 100%;
+    max-width: 60rem;
+    height: 100%;
+    resize: none;
+    padding: 2rem;
+
+    border: none;
+    overflow: auto;
+    outline: none;
+    box-shadow: none;
+    background-color: #303030;
+
+    font-size: 1.5rem;
+    color: white;
+}
+</style>
+
+<script>
+const INTERVAL = 1000 * 10;
+
+window.addEventListener('DOMContentLoaded', async (event) => {
+    console.log('DOM loaded, pad is loading...');
+    const pad = document.getElementById('pad');
+
+    const getResp = await fetch('/');
+    const text = await getResp.text();
+
+    pad.value = text;
+    pad.disabled = false;
+
+    console.log('pad is ready', pad);
+
+    let previousText = text;
+
+    setInterval(async () => {
+        if (pad.value !== previousText) {
+            console.log('syncing text of pad...');
+
+            const response = await fetch('/', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'text/plain'
+                },
+                body: pad.value,
+            });
+
+            previousText = pad.value;
+
+            console.log('done syncing');
+        }
+    }, INTERVAL);
+});
+</script>
+
+<textarea id="pad" disabled></textarea>

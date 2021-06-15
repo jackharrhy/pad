@@ -1,0 +1,17 @@
+name: pad
+version: 0.1.0
+
+authors:
+  - Jack Arthur Harrhy <me@jackharrhy.com>
+
+targets:
+  pad:
+    main: src/pad.cr
+
+dependencies:
+  kemal:
+    github: kemalcr/kemal
+
+crystal: 1.0.0
+
+license: MIT
