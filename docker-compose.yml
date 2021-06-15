@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  pad:
+    image: jackharrhy/pad
+    build: ./.
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./pad.txt:/app/pad.txt
