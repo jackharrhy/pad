@@ -2,9 +2,12 @@ require "kemal"
 require "ecr"
 require "json"
 
-PAD = "./pad.txt"
+PAD_DIR = "./data"
+PAD_FILE = "pad.txt"
+PAD = "#{PAD_DIR}/#{PAD_FILE}"
 
-unless File.exists?(PAD)
+unless Dir.exists?(PAD_DIR) && File.exists?(PAD)
+  Dir.mkdir_p(PAD_DIR)
   File.write(PAD, "")
 end
 

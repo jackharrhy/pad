@@ -7,8 +7,6 @@ COPY shard.lock /build/
 RUN mkdir src
 COPY ./src /build/src
 
-RUN mkdir data
-
 RUN shards
 RUN crystal build src/pad.cr --release --static -o pad
 
