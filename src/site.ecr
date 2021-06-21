@@ -1,4 +1,16 @@
-<style>
+<script>
+
+</script>
+
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pad</title>
+    <style>
 * {
     box-sizing: border-box;
 }
@@ -33,14 +45,121 @@ textarea {
     font-size: 1.5rem;
     color: white;
 }
-</style>
+    </style>
+  </head>
 
-<script>
+  <body>
+    <textarea id="pad" disabled></textarea>
+
+    <script>
+function Pad({
+    element
+} = {}) {
+    this.element = element;
+
+    this.unlock = () => {
+        element.disabled = false;
+    };
+
+    this.fullscreen = () => {
+        element.requestFullscreen();
+    };
+}
+
+function Crypt({
+    algorithm = 'AES-GCM',
+    accessKeySize = 40,
+    validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+} = {}) {
+    const genIv = () => new Uint8Array(12);
+
+    this.generateAccessKey = async () => {
+        let array = new Uint8Array(accessKeySize);
+        window.crypto.getRandomValues(array);
+        array = array.map((x) => VALID_CHARS.charCodeAt(x % VALID_CHARS.length));
+        return String.fromCharCode.apply(null, array);
+    };
+
+    this.generatePrivateKey = async () => window.crypto.subtle.generateKey(
+        { name: ALGORITHM, length: 128 },
+        true,
+        ["encrypt", "decrypt"],
+    );
+
+    this.encrypt = async (privateKey, data) => window.crypto.subtle.encrypt(
+        { name: ALGORITHM, iv: genIv() },
+        privateKey,
+        new TextEncoder().encode(data),
+    );
+
+    this.decrypt = async (privateKey, encryptedData) => {
+        const decryptedData = await window.crypto.subtle.decrypt(
+            { name: ALGORITHM, iv: genIv() },
+            privateKey,
+            encryptedData,
+        );
+
+        return new window.TextDecoder().decode(new Uint8Array(decryptedData));
+    };
+}
+
+function Sesh({
+    crypt,
+    accessKeyStorageKey = 'accessKey',
+    privateKeyStorageKey = 'privateKey',
+} = {}) {
+    this.fetchSessionFromLocalStorage = () => ({
+        accessKey: localStorage.getItem('accessKey'),
+        privateKey: localStorage.getItem('privateKey'),
+    });
+
+    this.hasSessionInLocalStorage = () => {
+        const { accessKey, privateKey } = this.fetchSessionFromLocalStorage();
+        return accessKey !== null && privateKey !== null;
+    };
+
+    this.storeSesssionInLocalStorage = (accessKey, privateKey) => {
+        localStorage.setItem(accessKeyStorageKey, newAccessKey);
+        localStorage.setItem(privateKeyStorageKey, newPrivateKey);
+    };
+
+    this.createSession = async () => {
+        const newAccessKey = await crypt.generateAccessKey();
+        const newPrivateKey = await crypt.generatePrivateKey();
+        this.storeSesssionInLocalStorage(newAccessKey, newPrivateKey);
+    };
+
+    this.loadSession = (accessKey, privateKey) => {
+        console.log('TODO load session');
+    };
+}
+
+(async () => {
+    const crypt = new Crypt();
+    const sesh = new Sesh(crypt);
+
+    window.addEventListener('DOMContentLoaded', async (event) => {
+        console.log('%c✨ pad ✨', 'font-size: 1.6rem;');
+        const pad = new Pad({ element: document.getElementById('pad') });
+        window.pad = pad;
+        console.log('window.pad =', pad);
+
+        if (sesh.hasSessionInLocalStorage()) {
+            const { accessKey, privateKey } = sesh.fetchSessionFromLocalStorage();
+            sesh.loadSession(accessKey, privateKey);
+        } else {
+            // TODO show welcome
+            sesh.createSession();
+        }
+    });
+})();
+
+/*
 const INTERVAL = 1000 * 10;
 
-window.addEventListener('DOMContentLoaded', async (event) => {
-    console.log('DOM loaded, pad is loading...');
-    const pad = document.getElementById('pad');
+...
+
+    return;
 
     const getResp = await fetch('/');
     const text = await getResp.text();
@@ -69,7 +188,7 @@ window.addEventListener('DOMContentLoaded', async (event) => {
             console.log('done syncing');
         }
     }, INTERVAL);
-});
-</script>
-
-<textarea id="pad" disabled></textarea>
+*/
+    </script>
+  </body>
+</html>
