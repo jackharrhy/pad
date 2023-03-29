@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Publish to Dockerhub Registry
-      uses: elgohr/Publish-Docker-Github-Action@3.04
+      uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         name: jackharrhy/pad
         username: ${{ secrets.DOCKER_USERNAME }}
