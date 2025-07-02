@@ -1,0 +1,9 @@
+./data
+
+*.md
+LICENSE
+
+Dockerfile
+*.yml
+.github
+.gitignore

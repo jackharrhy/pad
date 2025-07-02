@@ -1,10 +1,8 @@
-version: '3'
-
 services:
   pad:
-    image: jackharrhy/pad
+    image: ghcr.io/jackharrhy/pad:latest
     build: ./.
     ports:
-      - "3000:3000"
+      - 127.0.0.1:3000:3000
     volumes:
       - ./data:/app/data
